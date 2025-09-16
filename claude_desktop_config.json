@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+      "buildmate-mcp": {
+        "command": "node",
+        "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
+        "env": {
+          "NODEJS_API_BASE_URL": "http://pub400.com:3011/"
+        }
+      }
+    }
+  }

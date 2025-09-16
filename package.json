@@ -1,0 +1,57 @@
+{
+  "name": "db2-invoice-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for connecting Angular frontend to DB2 invoice and order data",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "db2-invoice-mcp-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc && node build/index.js",
+    "start": "node build/index.js",
+    "watch": "tsc --watch",
+    "server:dev": "node build/index.js",
+    "server:inspect": "set DANGEROUSLY_OMIT_AUTH=true && npx @modelcontextprotocol/inspector npm run server:dev",
+    "http-server": "npm run build && node mcp-http-server.js",
+    "http-server:dev": "npm run build && nodemon mcp-http-server.js",
+    "test": "node tests/run-all-tests.js",
+    "test:endpoints": "node tests/test_endpoints.js",
+    "test:mcp": "node tests/test_mcp_tools.js",
+    "test:line-items": "node tests/final_test_line_items.js",
+    "test:parameters": "node tests/test_parameter_types.js",
+    "test:flexible": "node tests/test_flexible_parameters.js"
+  },
+  "keywords": [
+    "mcp",
+    "server",
+    "db2",
+    "invoice",
+    "angular",
+    "ai"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/inspector": "^0.16.6",
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.24.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "build/**/*",
+    "README.md"
+  ]
+}
