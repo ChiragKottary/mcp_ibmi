@@ -16,7 +16,7 @@ import { ChatService } from './services/chat.service';
   `]
 })
 export class App implements OnInit {
-  title = 'IBM i Building Supply Chatbot';
+  title = 'Build-Mate Chatbot';
 
   constructor(private chatService: ChatService) {}
 

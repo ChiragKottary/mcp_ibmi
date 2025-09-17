@@ -32,7 +32,7 @@ import { ChatService } from '../services/chat.service';
             <mat-icon>key</mat-icon>
           </div>
           <div class="header-content">
-            <h1>Welcome to IBM i Building Supply Assistant</h1>
+            <h1>Welcome to Build-Mate Assistant</h1>
             <p>Configure your Claude API key to unlock AI-powered conversations</p>
           </div>
         </div>

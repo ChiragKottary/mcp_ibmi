@@ -37,7 +37,7 @@ export class ChatService {
 
     // Add welcome message
     const welcomeMessage = ChatMessageBuilder.createAssistantMessage(
-      "Hello! I'm your IBM i Building Supply assistant. I can help you with:\n\n" +
+      "Hello! I'm your Build-Mate assistant. I can help you with:\n\n" +
       "• Finding invoices by number or customer\n" +
       "• Searching for products\n" +
       "• Looking up customer information\n" +

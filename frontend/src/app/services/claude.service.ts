@@ -61,10 +61,10 @@ export class ClaudeService {
   }
 
   /**
-   * Get system prompt for the IBM i Building Supply assistant
+   * Get system prompt for the Build-Mate assistant
    */
   getSystemPrompt(): string {
-    return `You are a helpful assistant for IBM i Building Supply company. You have access to various tools to help customers with:
+    return `You are a helpful assistant for Build-Mate company. You have access to various tools to help customers with:
 
 1. Invoice inquiries - Find invoices by number, customer, or date range
 2. Product searches - Search for products and their details

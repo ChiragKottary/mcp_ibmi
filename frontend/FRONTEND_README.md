@@ -2,7 +2,7 @@
 
 ## 🚀 Quick Start
 
-This Angular application provides a modern chat interface for interacting with IBM i Building Supply systems through Claude AI and MCP (Model Context Protocol).
+This Angular application provides a modern chat interface for interacting with Build-Mate systems through Claude AI and MCP (Model Context Protocol).
 
 ### Prerequisites
 
@@ -48,7 +48,7 @@ The frontend application will run on `http://localhost:4200`
 
 1. **Open your browser** and navigate to `http://localhost:4200`
 2. **Enter your Claude API Key** when prompted
-3. **Start chatting** with the IBM i Building Supply assistant
+3. **Start chatting** with the Build-Mate assistant
 
 ### 🔧 Configuration
 

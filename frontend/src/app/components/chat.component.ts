@@ -43,7 +43,7 @@ import { environment } from '../../environments/environment';
           </div>
           <div class="header-text">
             <h1>{{ appName }}</h1>
-            <p>Your intelligent assistant for IBM i Building Supply queries</p>
+            <p>Your intelligent assistant for Build-Mate queries</p>
           </div>
           <div class="header-actions">
             <button mat-icon-button (click)="toggleTheme()" title="Toggle theme">

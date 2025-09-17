@@ -1,6 +1,6 @@
-# IBM i Building Supply Chatbot Frontend
+# Build-Mate Chatbot Frontend
 
-An Angular-based chatbot interface that connects to your MCP (Model Context Protocol) server and integrates with Claude AI to provide natural language querying capabilities for your IBM i Building Supply system.
+An Angular-based chatbot interface that connects to your MCP (Model Context Protocol) server and integrates with Claude AI to provide natural language querying capabilities for your Build-Mate system.
 
 ## Features
 
