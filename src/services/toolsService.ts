@@ -4,7 +4,7 @@ import { safeToFixed, formatCurrency } from '../utils/formatters.js';
 
 // Tool schemas for validation
 export async function askGeminiTool(prompt: string) {
-  return await apiService.askGemini(prompt);
+    return await apiService.askGemini(prompt);
 }
 
 // Invoice schemas
@@ -70,7 +70,7 @@ export class ToolsService {
         }
 
         const invoiceList = response.data.map(invoice =>
-            `📄 Invoice ${invoice.SONUMM || 'N/A'} - ${invoice.SOKUNA?.trim() || 'Unknown'}\n` +
+            `📄 Invoice ${invoice.SOBINR || 'N/A'} - ${invoice.SOKUNA?.trim() || 'Unknown'}\n` +
             `   Amount: ${formatCurrency(parseFloat(invoice.SOSALP || '0') || 0)} | Status: ${invoice.status || 'Active'}\n` +
             `   Order Date: ${invoice.SOBDAT || 'N/A'}${invoice.SOFFDA ? ` | Delivery Date: ${invoice.SOFFDA}` : ''}\n`
         ).join('\n');
@@ -80,8 +80,8 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `Found ${response.data.length} invoice${response.data.length === 1 ? '' : 's'} matching your criteria:\n\n${invoiceList}\n\n` +
-                          `${response.pagination ? `Page ${response.pagination.page} of ${response.pagination.pages} (${response.pagination.total} total)` : ''}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `${response.pagination ? `Page ${response.pagination.page} of ${response.pagination.pages} (${response.pagination.total} total)` : ''}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };
@@ -103,7 +103,7 @@ export class ToolsService {
         }
 
         const { header, details, summary } = response.data;
-        
+
         const statusEmoji = {
             'paid': '✅',
             'pending': '⏳',
@@ -111,7 +111,7 @@ export class ToolsService {
             'draft': '📝'
         };
 
-        const lineItemsList = details.map(item => 
+        const lineItemsList = details.map(item =>
             `   • ${item.SDTEK1?.trim() || item.description || 'No description'} (${item.SDVARE?.trim() || item.itemNumber || 'N/A'})\n` +
             `     Quantity: ${parseFloat(item.SDANTA || '0') || item.quantity || 0} ${item.SDENH1?.trim() || item.unit || ''} @ ${formatCurrency(parseFloat(item.SDSAPR || '0') || item.salesPrice || 0)} each = ${formatCurrency(parseFloat(item.SDSALG || '0') || item.totalAmount || 0)}`
         ).join('\n');
@@ -149,7 +149,7 @@ export class ToolsService {
             };
         }
 
-        const invoiceList = response.data.slice(0, 10).map(invoice => 
+        const invoiceList = response.data.slice(0, 10).map(invoice =>
             `📄 Invoice ${invoice.INVOICENUMBER || invoice.SONUMM || 'N/A'} - ${(invoice.CUSTOMERNAME || invoice.SOKUNA)?.trim() || 'Unknown'}\n` +
             `   Amount: ${formatCurrency(parseFloat(invoice.TOTALAMOUNT || invoice.SOSALP || '0') || 0)} | Status: Active\n` +
             `   Order Date: ${invoice.ORDERDATE || invoice.SOBDAT || 'N/A'} | Delivery: ${invoice.DELIVERYDATE || invoice.SOLDAT || 'N/A'}\n`
@@ -163,9 +163,9 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `${response.count || response.data.length} total invoices found:\n\n` +
-                          `${invoiceList}\n\n` +
-                          `${totalRemaining > 0 ? `...and ${totalRemaining} more invoice(s) not shown.` : ''}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `${invoiceList}\n\n` +
+                        `${totalRemaining > 0 ? `...and ${totalRemaining} more invoice(s) not shown.` : ''}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };
@@ -198,10 +198,10 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `👤 Customer: ${customerName || 'Unknown'} (${customerNumber || 'N/A'})\n\n` +
-                          `Found ${invoiceCount || 0} invoice(s) with total value: ${formatCurrency(totalValue)}\n\n` +
-                          `${invoiceList}\n\n` +
-                          `${invoices.length > 10 ? `...and ${invoices.length - 10} more invoice(s) not shown.` : ''}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `Found ${invoiceCount || 0} invoice(s) with total value: ${formatCurrency(totalValue)}\n\n` +
+                        `${invoiceList}\n\n` +
+                        `${invoices.length > 10 ? `...and ${invoices.length - 10} more invoice(s) not shown.` : ''}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };
@@ -225,7 +225,7 @@ export class ToolsService {
         const { overview, monthly, topCustomers } = response.data;
 
         // Format monthly data
-        const monthlyStats = monthly.slice(0, 5).map(month => 
+        const monthlyStats = monthly.slice(0, 5).map(month =>
             `📅 ${month.YEAR || 'N/A'}/${month.MONTH || 'N/A'}: ${month.INVOICECOUNT || month.invoiceCount || 0} invoices, ${formatCurrency(parseFloat(String(month.TOTALAMOUNT || month.totalAmount || '0')) || 0)}`
         ).join('\n');
 
@@ -239,10 +239,10 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `📊 Invoice Statistics:\n\n` +
-                          `Total: ${overview.INVOICECOUNT || overview.invoiceCount || 0} invoices, ${formatCurrency(parseFloat(String(overview.TOTALAMOUNT || overview.totalAmount || '0')) || 0)}\n\n` +
-                          `Monthly Breakdown (Top 5):\n${monthlyStats}\n\n` +
-                          `Top Customers:\n${topCustomersList}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `Total: ${overview.INVOICECOUNT || overview.invoiceCount || 0} invoices, ${formatCurrency(parseFloat(String(overview.TOTALAMOUNT || overview.totalAmount || '0')) || 0)}\n\n` +
+                        `Monthly Breakdown (Top 5):\n${monthlyStats}\n\n` +
+                        `Top Customers:\n${topCustomersList}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };
@@ -263,7 +263,7 @@ export class ToolsService {
             };
         }
 
-        const lineItemsList = response.data.map(item => 
+        const lineItemsList = response.data.map(item =>
             `• Line ${item.SDLINE || item.lineNumber || 'N/A'}: ${(item.SDTEK1 || item.description || 'No description').trim()} (${(item.SDVARE || item.itemNumber || 'N/A').trim()})\n` +
             `  Quantity: ${parseFloat(item.SDANTA || '0') || item.quantity || 0} ${(item.SDENH1 || item.unit || '').trim()} @ ${formatCurrency(parseFloat(item.SDSAPR || '0') || item.salesPrice || 0)} = ${formatCurrency(parseFloat(item.SDSALG || '0') || item.totalAmount || 0)}`
         ).join('\n\n');
@@ -273,9 +273,9 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `📄 Line items for invoice ${validatedArgs.invoiceNumber}:\n\n` +
-                          `${lineItemsList}\n\n` +
-                          `Total items: ${response.data.length}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `${lineItemsList}\n\n` +
+                        `Total items: ${response.data.length}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };
@@ -309,13 +309,13 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `📄 Invoice Header for ${invoice.invoiceNumber || 'N/A'}:\n\n` +
-                          `Customer: ${invoice.customerName || 'Unknown'} (${invoice.customerNumber || 'N/A'})\n` +
-                          `Order Number: ${invoice.orderNumber || 'N/A'}\n` +
-                          `Amount: ${formatCurrency(invoice.invoiceAmount)}\n` +
-                          `Status: ${statusEmoji[(invoice.status as keyof typeof statusEmoji)] || '❓'} ${invoice.status}\n` +
-                          `Order Date: ${invoice.orderDate}\n` +
-                          (invoice.deliveryDate ? `Delivery Date: ${invoice.deliveryDate}\n` : '') +
-                          `\nIs there anything else I can help you with today?`
+                        `Customer: ${invoice.customerName || 'Unknown'} (${invoice.customerNumber || 'N/A'})\n` +
+                        `Order Number: ${invoice.orderNumber || 'N/A'}\n` +
+                        `Amount: ${formatCurrency(invoice.invoiceAmount)}\n` +
+                        `Status: ${statusEmoji[(invoice.status as keyof typeof statusEmoji)] || '❓'} ${invoice.status}\n` +
+                        `Order Date: ${invoice.orderDate}\n` +
+                        (invoice.deliveryDate ? `Delivery Date: ${invoice.deliveryDate}\n` : '') +
+                        `\nIs there anything else I can help you with today?`
                 }
             ]
         };
@@ -336,7 +336,7 @@ export class ToolsService {
             };
         }
 
-        const customersList = response.data.slice(0, 10).map(customer => 
+        const customersList = response.data.slice(0, 10).map(customer =>
             `👤 ${(customer.SOKUNA || customer.CUSTOMERNAME || customer.customerName)?.trim() || 'Unknown'} (${customer.SOLKUN || customer.CUSTOMERNUMBER || customer.customerNumber || 'N/A'})` +
             (customer.SOSTED || customer.city ? `\n   Location: ${(customer.SOSTED || customer.city)?.trim() || 'N/A'}` : '') +
             (customer.contactPerson ? `\n   Contact: ${customer.contactPerson}` : '')
@@ -347,9 +347,9 @@ export class ToolsService {
                 {
                     type: "text",
                     text: `Found ${response.count || response.data.length} customer(s):\n\n` +
-                          `${customersList}\n\n` +
-                          `${response.data.length > 10 ? `...and ${response.data.length - 10} more customer(s) not shown.` : ''}\n\n` +
-                          `Is there anything else I can help you with today?`
+                        `${customersList}\n\n` +
+                        `${response.data.length > 10 ? `...and ${response.data.length - 10} more customer(s) not shown.` : ''}\n\n` +
+                        `Is there anything else I can help you with today?`
                 }
             ]
         };

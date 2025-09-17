@@ -56,7 +56,7 @@ export class ToolsService {
                 ]
             };
         }
-        const invoiceList = response.data.map(invoice => `📄 Invoice ${invoice.SONUMM || 'N/A'} - ${invoice.SOKUNA?.trim() || 'Unknown'}\n` +
+        const invoiceList = response.data.map(invoice => `📄 Invoice ${invoice.SOBINR || 'N/A'} - ${invoice.SOKUNA?.trim() || 'Unknown'}\n` +
             `   Amount: ${formatCurrency(parseFloat(invoice.SOSALP || '0') || 0)} | Status: ${invoice.status || 'Active'}\n` +
             `   Order Date: ${invoice.SOBDAT || 'N/A'}${invoice.SOFFDA ? ` | Delivery Date: ${invoice.SOFFDA}` : ''}\n`).join('\n');
         return {
