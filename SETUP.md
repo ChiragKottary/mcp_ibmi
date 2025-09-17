@@ -13,7 +13,7 @@ npm install
 copy env.sample .env
 
 # Edit .env file to set your API URL
-# NODEJS_API_BASE_URL=http://pub400.com:3011/api
+# NODEJS_API_BASE_URL=http://pub400.com:3012/api
 ```
 
 ### 3. Build the Project
@@ -40,7 +40,7 @@ Create a `.env` file in the root directory:
 
 ```env
 # API Configuration
-NODEJS_API_BASE_URL=http://pub400.com:3011/api
+NODEJS_API_BASE_URL=http://pub400.com:3012/api
 
 # Optional Configuration
 API_TIMEOUT=5000
@@ -59,7 +59,7 @@ Add to your `claude_desktop_config.json`:
       "command": "node",
       "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
       "env": {
-        "NODEJS_API_BASE_URL": "http://pub400.com:3011/api"
+        "NODEJS_API_BASE_URL": "http://pub400.com:3012/api"
       }
     }
   }

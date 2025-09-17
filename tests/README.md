@@ -58,7 +58,7 @@ node tests/final_test_line_items.js
 - Currency formatting with safeToFixed()
 
 ## Test Environment
-- **IBM i API**: http://pub400.com:3011/
+- **IBM i API**: http://pub400.com:3012/
 - **Real Data**: Live IBM i/DB2 system integration
 - **Performance**: Response times 300ms-1700ms
 - **Error Handling**: Graceful fallbacks and user-friendly messages

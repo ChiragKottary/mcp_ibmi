@@ -39,7 +39,7 @@ async function testDirectAPI() {
     
     try {
         const axios = (await import('axios')).default;
-        const response = await axios.get('http://pub400.com:3011/api/direct-invoices/603891/items');
+        const response = await axios.get('http://pub400.com:3012/api/direct-invoices/603891/items');
         
         console.log(`✅ Direct API SUCCESS - Status: ${response.status}`);
         console.log(`📊 Data returned: ${Array.isArray(response.data?.data) ? response.data.data.length + ' items' : typeof response.data?.data}`);

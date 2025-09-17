@@ -31,7 +31,7 @@ npm run http-server
 ```
 🚀 Starting MCP Server process...
 📝 MCP Server: Starting BuildMate Invoice & Order MCP Server v1.0.0...
-📝 MCP Server: API Base URL: http://pub400.com:3011/
+📝 MCP Server: API Base URL: http://pub400.com:3012/
 📝 MCP Server: MCP Server connected and ready!
 🌐 MCP HTTP Server running on port 8080
 📍 Health check: http://localhost:8080/health
@@ -146,7 +146,7 @@ taskkill /F /PID <PID_NUMBER>
    - http://localhost:4200 (Angular App)
 
 ### **API Issues:**
-1. Check IBM i API: `curl http://pub400.com:3011/api/health`
+1. Check IBM i API: `curl http://pub400.com:3012/api/health`
 2. Check MCP tools: `curl http://localhost:8080/tools`
 3. Check browser console for errors
 

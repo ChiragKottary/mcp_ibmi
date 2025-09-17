@@ -1,7 +1,7 @@
 // Comprehensive endpoint testing script
 import axios from 'axios';
 
-const BASE_URL = 'http://pub400.com:3011';
+const BASE_URL = 'http://pub400.com:3012';
 
 async function testEndpoint(endpoint, description) {
     console.log(`\n🧪 Testing: ${description}`);

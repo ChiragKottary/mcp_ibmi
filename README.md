@@ -55,7 +55,7 @@ A Model Context Protocol (MCP) server for connecting Angular frontend to DB2 inv
 3. **Configure environment**
    ```bash
    # Create .env file
-   echo "NODEJS_API_BASE_URL=http://pub400.com:3011/api" > .env
+   echo "NODEJS_API_BASE_URL=http://pub400.com:3012/api" > .env
    ```
 
 4. **Build the project**
@@ -90,7 +90,7 @@ Add to your `claude_desktop_config.json`:
       "command": "node",
       "args": ["path/to/your/mcp_yt/build/index.js"],
       "env": {
-        "NODEJS_API_BASE_URL": "http://pub400.com:3011/api"
+        "NODEJS_API_BASE_URL": "http://pub400.com:3012/api"
       }
     }
   }
@@ -106,7 +106,7 @@ Configure the MCP server in your VS Code settings to connect to the built server
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `NODEJS_API_BASE_URL` | Base URL for the Node.js API server | `http://pub400.com:3011/api` |
+| `NODEJS_API_BASE_URL` | Base URL for the Node.js API server | `http://pub400.com:3012/api` |
 | `API_TIMEOUT` | API request timeout in milliseconds | `5000` |
 | `LOG_LEVEL` | Logging level | `info` |
 

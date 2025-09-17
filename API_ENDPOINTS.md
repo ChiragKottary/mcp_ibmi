@@ -128,7 +128,7 @@ interface Order {
 ## 🚀 Getting Started
 
 ### 1. Start Your Backend API
-Ensure your Node.js API server is running on `http://pub400.com:3011/api`
+Ensure your Node.js API server is running on `http://pub400.com:3012/api`
 
 ### 2. Start the MCP Server
 ```bash
@@ -157,7 +157,7 @@ The server includes professional BuildMate branding:
 
 ### Environment Variables
 ```env
-NODEJS_API_BASE_URL=http://pub400.com:3011/api
+NODEJS_API_BASE_URL=http://pub400.com:3012/api
 API_TIMEOUT=5000
 LOG_LEVEL=info
 ```

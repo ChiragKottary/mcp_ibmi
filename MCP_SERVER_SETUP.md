@@ -35,7 +35,7 @@ npm run dev
 **Expected Output:**
 ```
 Starting BuildMate Invoice & Order MCP Server v1.0.0...
-API Base URL: http://pub400.com:3011/
+API Base URL: http://pub400.com:3012/
 MCP Server connected and ready!
 Available tools: search_invoices, get_invoice_details, get_all_invoices, get_customer_invoices, get_invoice_statistics, get_invoice_line_items, get_invoice_header, get_customers
 ```
@@ -79,14 +79,14 @@ Local: http://localhost:4200/
 
 1. **MCP Server**: Uses stdio transport (not HTTP) - communicates via process pipes
 2. **Backend Proxy**: `http://localhost:3000` - Handles Claude API calls
-3. **IBM i API**: `http://pub400.com:3011/` - Your IBM i data source
+3. **IBM i API**: `http://pub400.com:3012/` - Your IBM i data source
 4. **Frontend**: `http://localhost:4200` - Angular application
 
 ### **Environment Configuration:**
 
 **Root `.env` file:**
 ```env
-NODEJS_API_BASE_URL=http://pub400.com:3011/
+NODEJS_API_BASE_URL=http://pub400.com:3012/
 DEBUG=false
 API_TIMEOUT=5000
 LOG_LEVEL=info
@@ -123,7 +123,7 @@ npm run test
 
 ### **3. Test IBM i API:**
 ```bash
-curl http://pub400.com:3011/api/health
+curl http://pub400.com:3012/api/health
 ```
 
 ## 🔍 **Troubleshooting**
@@ -131,7 +131,7 @@ curl http://pub400.com:3011/api/health
 ### **If MCP Server Won't Start:**
 1. Check if port 8080 is available
 2. Verify Node.js version (requires Node 16+)
-3. Check IBM i API connectivity: `curl http://pub400.com:3011/`
+3. Check IBM i API connectivity: `curl http://pub400.com:3012/`
 
 ### **If Backend Proxy Won't Start:**
 1. Check if port 3000 is available
@@ -149,7 +149,7 @@ curl http://pub400.com:3011/api/health
 2. **Frontend sends to Backend Proxy** at `http://localhost:3000/api/claude/messages`
 3. **Backend Proxy forwards to Claude API** with your API key
 4. **Claude decides if it needs data** and requests MCP tools
-5. **MCP Server fetches data** from IBM i API at `http://pub400.com:3011/`
+5. **MCP Server fetches data** from IBM i API at `http://pub400.com:3012/`
 6. **Data flows back** through the chain to the user
 
 ## 📝 **Next Steps**

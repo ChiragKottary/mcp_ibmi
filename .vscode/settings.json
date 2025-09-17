@@ -2,14 +2,16 @@
   "mcp.servers": {
     "buildmate-mcp": {
       "command": "node",
-      "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
+      "args": [
+        "C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"
+      ],
       "env": {
-        "NODEJS_API_BASE_URL": "http://pub400.com:3011/"
+        "NODEJS_API_BASE_URL": "http://pub400.com:3012/"
       }
     }
   },
   "terminal.integrated.env.windows": {
-    "NODEJS_API_BASE_URL": "http://pub400.com:3011/"
+    "NODEJS_API_BASE_URL": "http://pub400.com:3012/"
   },
   "chat.mcp.serverSampling": {
     "mcp_ibmi/.vscode/mcp.json: my-mcp-server": {

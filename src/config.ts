@@ -4,7 +4,7 @@ export const config = {
     // Debug mode (set to 'true' to enable debug logs)
     DEBUG: process.env.DEBUG || 'false',
     // API Configuration
-    NODEJS_API_BASE_URL: process.env.NODEJS_API_BASE_URL || 'http://pub400.com:3011/',
+    NODEJS_API_BASE_URL: process.env.NODEJS_API_BASE_URL || 'http://pub400.com:3012/',
 
     // Server Configuration
     SERVER_NAME: 'BuildMate Invoice & Order MCP Server',

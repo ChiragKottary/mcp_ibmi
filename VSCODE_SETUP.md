@@ -64,7 +64,7 @@ Your `.vscode/settings.json` is already configured with:
       "command": "node",
       "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
       "env": {
-        "NODEJS_API_BASE_URL": "http://pub400.com:3011/"
+        "NODEJS_API_BASE_URL": "http://pub400.com:3012/"
       }
     }
   }
@@ -107,7 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
         command: 'node',
         args: ['C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js'],
         env: {
-            NODEJS_API_BASE_URL: 'http://pub400.com:3011/'
+            NODEJS_API_BASE_URL: 'http://pub400.com:3012/'
         }
     });
 
@@ -173,7 +173,7 @@ Add to `.vscode/tasks.json`:
             "label": "Test API",
             "type": "shell",
             "command": "curl.exe",
-            "args": ["http://pub400.com:3011/health"],
+            "args": ["http://pub400.com:3012/health"],
             "group": "test"
         }
     ]
@@ -191,13 +191,13 @@ Add to `.vscode/tasks.json`:
 ### Test 2: API Direct Testing
 ```powershell
 # Test health
-curl.exe http://pub400.com:3011/health
+curl.exe http://pub400.com:3012/health
 
 # Test invoices
-curl.exe http://pub400.com:3011/api/invoices
+curl.exe http://pub400.com:3012/api/invoices
 
 # Test orders
-curl.exe http://pub400.com:3011/api/orders
+curl.exe http://pub400.com:3012/api/orders
 ```
 
 ### Test 3: VS Code Integration

@@ -136,6 +136,7 @@ export class ChatService {
 
         // Ask Claude to interpret the results
         return this.claudeService.sendMessage(
+          
           this.conversationHistory,
           this.availableTools,
           this.claudeService.getSystemPrompt() + "\n\nPlease interpret the tool result and provide a helpful response to the user."

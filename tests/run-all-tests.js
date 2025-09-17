@@ -93,7 +93,7 @@ class TestRunner {
         console.log('🚀 IBM i/DB2 MCP Server Test Suite');
         console.log('='.repeat(80));
         console.log(`📅 Started: ${new Date().toLocaleString()}`);
-        console.log(`🔗 Target API: http://pub400.com:3011/`);
+        console.log(`🔗 Target API: http://pub400.com:3012/`);
         console.log(`📂 Test Directory: ${__dirname}`);
 
         const overallStartTime = Date.now();

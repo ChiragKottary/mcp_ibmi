@@ -195,7 +195,7 @@ MCP Server calls: toolsService.searchInvoices({})
     ↓
 toolsService calls: apiService.makeRequest("GET", "/api/invoices")
     ↓
-apiService makes HTTP request to: http://pub400.com:3011/api/invoices
+apiService makes HTTP request to: http://pub400.com:3012/api/invoices
     ↓
 Dummy API returns: [{"id": "INV-2024-001", "amount": 2500, ...}]
     ↓
@@ -214,7 +214,7 @@ MCP Inspector displays the invoice data in web UI
             "command": "node",
             "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
             "env": {
-                "NODEJS_API_BASE_URL": "http://pub400.com:3011/api"
+                "NODEJS_API_BASE_URL": "http://pub400.com:3012/api"
             }
         }
     }
@@ -231,7 +231,7 @@ MCP Inspector displays the invoice data in web UI
             "command": "node",
             "args": ["C:\\Users\\ruraj\\Downloads\\mcp_yt\\build\\index.js"],
             "env": {
-                "NODEJS_API_BASE_URL": "http://pub400.com:3011/api"
+                "NODEJS_API_BASE_URL": "http://pub400.com:3012/api"
             }
         }
     }
@@ -332,11 +332,11 @@ npx @modelcontextprotocol/inspector
 ### Test 1: API Direct Testing
 ```powershell
 # Test if dummy API is running
-curl.exe http://pub400.com:3011/health
+curl.exe http://pub400.com:3012/health
 # Expected: {"status":"healthy","message":"BuildMate Dummy API is running"}
 
 # Test invoices endpoint
-curl.exe http://pub400.com:3011/api/invoices
+curl.exe http://pub400.com:3012/api/invoices
 # Expected: [{"id":"INV-2024-001","amount":2500,...}]
 ```
 
