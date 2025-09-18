@@ -46,6 +46,7 @@ app.post('/api/claude/messages', async (req, res) => {
         message: 'Model and messages are required'
       });
     }
+console.log(claudeRequestBody.messages);
 
     // Forward request to Claude API
     const claudeResponse = await axios.post(
@@ -63,6 +64,8 @@ app.post('/api/claude/messages', async (req, res) => {
 
     // Return the response from Claude API
     res.json(claudeResponse.data);
+    console.log(claudeResponse.data);
+    
 
   } catch (error) {
     console.error('Claude API Error:', error.response?.data || error.message);
@@ -118,6 +121,8 @@ app.post('/api/mcp/:tool', async (req, res) => {
     );
 
     res.json(mcpResponse.data);
+    console.log(mcpResponse.data);
+    
 
   } catch (error) {
     console.error('MCP Server Error:', error.response?.data || error.message);

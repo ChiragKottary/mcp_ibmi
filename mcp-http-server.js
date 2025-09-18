@@ -261,6 +261,30 @@ app.post('/tools/get_invoice_line_items', async (req, res) => {
   }
 });
 
+app.post('/tools/get_order_details', async (req, res) => {
+  try {
+    const response = await sendMCPRequest('tools/call', {
+      name: 'get_order_details',
+      arguments: req.body
+    });
+
+    if (response.error) {
+      return res.status(500).json({
+        error: 'Order Details Error',
+        message: response.error.message
+      });
+    }
+
+    res.json(response.result);
+  } catch (error) {
+    console.error('❌ Error getting order details:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: error.message
+    });
+  }
+});
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('🚨 Server Error:', error);

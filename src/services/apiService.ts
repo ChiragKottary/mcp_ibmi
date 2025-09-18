@@ -161,6 +161,210 @@ export interface CustomerInvoiceSummary {
     invoices: InvoiceHeaderItem[];
 }
 
+// Order Service Types
+export interface OrderLine {
+    id: string;
+    lineNumber: number;
+    oldLineNumber?: number;
+    lineType: string;
+    articleNo: string;
+    articleText1?: string;
+    articleText2?: string;
+    unitCode?: string;
+    quantity: number;
+    unitPriceExVat: number;
+    unitPriceIncVat: number;
+    costPriceExVat: number;
+    purchasePriceExVat: number;
+    discountPercent1?: number;
+    discountPercent2?: number;
+    specialDiscountPercent1?: number;
+    specialDiscountPercent2?: number;
+    campaignCode?: string;
+    coveragePercent?: number;
+    vatPercent?: number;
+    totalCostPriceExVat: number;
+    totalPurchasePriceExVat: number;
+    totalDiscountedPriceExVat: number;
+    totalDiscountedPriceIncVat: number;
+    externalLineStatus?: string;
+    quantityDelivered?: number;
+    quantityRemaining?: number;
+    quantityInvoiced?: number;
+    unitPriceOriginalExVat?: number;
+    costPriceOriginalExVat?: number;
+    warehouseNo?: string;
+    departmentNo?: string;
+    deliveryTypeCode?: string;
+    deliveryTypeName?: string;
+    deliveryDate?: string;
+    priceCode?: string;
+    vendorNumber?: string;
+    externalArticle?: boolean;
+    externalPriceCalculationDescription?: string;
+    externalPriceCostCalculationFactor?: number;
+    externalPricePurchaseCalculationFactor?: number;
+    articleType?: string;
+    gtinNo?: string;
+    purchaseOrderNumber?: string;
+    purchaseOrderLineNumber?: number;
+    purchaseOrderStatus?: string;
+    unitVolumeInQm?: number;
+    unitWeightInKg?: number;
+    parentLineNumber?: number;
+    articleOrigin?: string;
+    lineChosen?: boolean;
+}
+
+export interface OrderCustomer {
+    customerNo: string;
+    name: string;
+    phone?: string;
+    mobile?: string;
+    fax?: string;
+    url?: string;
+    email?: string;
+    organizationNumber?: string;
+    defaultOrderDiscountPercent?: number;
+    vatFree?: boolean;
+    address?: {
+        name?: string;
+        address1?: string;
+        address2?: string;
+        postalCode?: string;
+        city?: string;
+        country?: string;
+    };
+}
+
+export interface OrderDetails {
+    version: number;
+    orderFlowIndicator: string;
+    orderNo: number;
+    parentOrderNo?: number;
+    externalOrderReferences?: Array<{
+        externalSystemCode?: string;
+        externalOrderNo?: string;
+        externalOrderStatus?: string;
+        externalOrderType?: string;
+    }>;
+    departmentNo?: string;
+    warehouseNo?: string;
+    customer: OrderCustomer;
+    articleCustomer?: {
+        name?: string;
+        organizationNumber?: string;
+        gln?: string;
+    };
+    customerProject?: {
+        id?: string;
+        projectNo?: string;
+        name?: string;
+        externalProjectNo?: string;
+        email?: string;
+        phone?: string;
+        mobile?: string;
+        address?: {
+            name?: string;
+            address1?: string;
+            address2?: string;
+            postalCode?: string;
+            city?: string;
+            country?: string;
+        };
+    };
+    orderDate?: string;
+    deliveryDate?: string;
+    expireDate?: string;
+    followupDate?: string;
+    deliveryType?: {
+        code?: string;
+        name?: string;
+    };
+    deliveryRouteId?: string;
+    deliveryMethodId?: string;
+    ourReference?: string;
+    customerReference?: string;
+    requisition?: string;
+    information?: string;
+    salesperson?: {
+        code?: string;
+        name?: string;
+        phone?: string;
+        email?: string;
+    };
+    responsibleSalesperson?: {
+        code?: string;
+        name?: string;
+        phone?: string;
+        email?: string;
+    };
+    deliveryAddress?: {
+        name?: string;
+        address1?: string;
+        address2?: string;
+        postalCode?: string;
+        city?: string;
+        country?: string;
+    };
+    coveragePercent?: number;
+    orderDiscountPercent?: number;
+    totalPurchasePriceExVat?: number;
+    totalCostPriceExVat?: number;
+    totalDiscountedPriceExVat?: number;
+    totalDiscountedPriceIncVat?: number;
+    createdTimestamp?: string;
+    createdByUser?: string;
+    lastChangedTimestamp?: string;
+    lastChangedByUser?: string;
+    deletedByUser?: string;
+    deletedTime?: string;
+    deletedReason?: string;
+    orderInfoCode?: string;
+    calculateVat?: boolean;
+    automaticFee?: boolean;
+    automaticInvoiceFee?: boolean;
+    automaticShippingFee?: boolean;
+    headerText?: string;
+    footerText?: string;
+    customerPaymentTermCode?: string;
+    customerContact?: {
+        customerContactId?: string;
+        name?: string;
+        phone?: string;
+        email?: string;
+    };
+    requiredDeposit?: number;
+    deductedDeposit?: number;
+    remainingDeposit?: number;
+    currencyCode?: string;
+    targetMarginInPercent?: number;
+    priceSourceOrderNo?: string;
+    customerCardNumber?: string;
+    orderCommands?: string[];
+    orderLines?: OrderLine[];
+    warehouseEmployeeText?: string;
+    transportEmployeeText?: string;
+    transportShipmentReference?: string;
+    lockKey?: string;
+    lockDetails?: {
+        lockedByUser?: string;
+        lockedTime?: string;
+        lockSource?: string;
+    };
+    source?: string;
+    parcels?: Array<{
+        parcelType?: string;
+        text?: string;
+        printerName?: string;
+    }>;
+    quote?: boolean;
+    deleted?: boolean;
+    draft?: boolean;
+    readyForPicking?: boolean;
+    delivered?: boolean;
+}
+
 export interface PaginationInfo {
     total: number;
     limit: number;
@@ -357,6 +561,48 @@ export class ApiService {
             // Using stderr for logs to avoid interfering with MCP protocol
             console.error('Error getting customers:', error);
             throw new Error('Failed to get customers. Please try again or contact support.');
+        }
+    }
+
+    // Order Service Methods
+    async getOrderDetails(orderId: number, forUpdate: boolean = false, lockSource: string = 'NGN'): Promise<ApiResponse<OrderDetails>> {
+        try {
+            // Using the external order service endpoint
+            const orderServiceUrl = 'https://apps-order-service.cloud.test.egapps.no/api/orders';
+            
+            const response = await axios.get(`${orderServiceUrl}/${orderId}`, {
+                params: {
+                    'for-update': forUpdate,
+                    'lock-source': lockSource
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                    'eg-apps-token': `${config.ORDER_SERVICE_TOKEN}`
+                },
+                timeout: config.API_TIMEOUT || 30000
+            });
+            
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            } as any;
+        } catch (error: any) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting order details:', error);
+            
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get order details for ID: ${orderId}. ${errorMessage}`);
+            } else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to order service for order ID: ${orderId}. Please check your connection and try again.`);
+            } else {
+                // Something else happened
+                throw new Error(`Failed to get order details for ID: ${orderId}. ${error.message}`);
+            }
         }
     }
 

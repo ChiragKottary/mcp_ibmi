@@ -35,6 +35,12 @@ class TestRunner {
                 file: 'final_test_line_items.js',
                 description: 'Final validation of line items with field mapping',
                 timeout: 15000
+            },
+            {
+                name: 'Order Service API Test',
+                file: 'test_order_service.js',
+                description: 'Tests the new order service endpoint with FOHEPF mapping',
+                timeout: 25000
             }
         ];
         this.results = [];
@@ -141,10 +147,10 @@ class TestRunner {
         }
 
         console.log('\n📊 ENDPOINT STATUS:');
-        console.log('   All 8 MCP endpoints should be working if tests pass:');
+        console.log('   All 9 MCP endpoints should be working if tests pass:');
         console.log('   • search_invoices, get_invoice_details, get_all_invoices');
         console.log('   • get_customers, get_invoice_statistics, get_customer_invoices');
-        console.log('   • get_invoice_line_items, get_invoice_header');
+        console.log('   • get_invoice_line_items, get_invoice_header, get_order_details');
     }
 }
 

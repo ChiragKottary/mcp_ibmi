@@ -123,6 +123,28 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                         limit: { type: "number", description: "Number of results to fetch (default: 100)" }
                     }
                 }
+            },
+            {
+                name: "get_order_details",
+                description: "Get detailed information about a specific order from the external order service API. Maps response to FOHEPF table structure context.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        orderId: { 
+                            type: ["number", "string"], 
+                            description: "The order ID to retrieve details for (e.g., 7319)" 
+                        },
+                        forUpdate: { 
+                            type: "boolean", 
+                            description: "Whether to lock the order for update (default: false)" 
+                        },
+                        lockSource: { 
+                            type: "string", 
+                            description: "Source of the lock (default: 'NGN')" 
+                        }
+                    },
+                    required: ["orderId"]
+                }
             }
         ]
     };
@@ -149,7 +171,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             "get_invoice_statistics": "/api/direct-invoices/stats",
             "get_invoice_line_items": "/api/direct-invoices/items",
             "get_invoice_header": "/api/invoice-header-exec",
-            "get_customers": "/api/direct-customers"
+            "get_customers": "/api/direct-customers",
+            "get_order_details": "https://apps-order-service.cloud.test.egapps.no/api/orders"
         };
         
         console.error(`🌐 API Endpoint: ${endpointMap[name] || "unknown"}`);
@@ -185,6 +208,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 
             case "get_customers":
                 result = await toolsService.getCustomers(args || {});
+                break;
+                
+            case "get_order_details":
+                result = await toolsService.getOrderDetails(args || {});
                 break;
                 
             default:
@@ -225,7 +252,7 @@ async function main() {
     await server.connect(transport);
 
     console.error("MCP Server connected and ready!");
-    console.error("Available tools: search_invoices, get_invoice_details, get_all_invoices, get_customer_invoices, get_invoice_statistics, get_invoice_line_items, get_invoice_header, get_customers");
+    console.error("Available tools: search_invoices, get_invoice_details, get_all_invoices, get_customer_invoices, get_invoice_statistics, get_invoice_line_items, get_invoice_header, get_customers, get_order_details");
 }
 
 // Start the server

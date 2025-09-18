@@ -1,4 +1,4 @@
-import { apiService, InvoiceHeaderItem, InvoiceDetail, InvoiceSummary, ApiResponse, CustomerInvoiceSummary, InvoiceStats, InvoiceLineItem, Customer } from './apiService.js';
+import { apiService, InvoiceHeaderItem, InvoiceDetail, InvoiceSummary, ApiResponse, CustomerInvoiceSummary, InvoiceStats, InvoiceLineItem, Customer, OrderDetails } from './apiService.js';
 import { z } from 'zod';
 import { safeToFixed, formatCurrency } from '../utils/formatters.js';
 
@@ -49,6 +49,13 @@ export const GetInvoiceHeaderSchema = z.object({
 export const GetCustomersSchema = z.object({
     search: z.string().optional(),
     limit: z.number().optional()
+});
+
+// Order service schemas
+export const GetOrderDetailsSchema = z.object({
+    orderId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val, 10) : val),
+    forUpdate: z.boolean().optional().default(false),
+    lockSource: z.string().optional().default('NGN')
 });
 
 // Tool implementations
@@ -349,6 +356,108 @@ export class ToolsService {
                     text: `Found ${response.count || response.data.length} customer(s):\n\n` +
                         `${customersList}\n\n` +
                         `${response.data.length > 10 ? `...and ${response.data.length - 10} more customer(s) not shown.` : ''}\n\n` +
+                        `Is there anything else I can help you with today?`
+                }
+            ]
+        };
+    }
+
+    async getOrderDetails(args: any) {
+        const validatedArgs = GetOrderDetailsSchema.parse(args || {});
+        const response = await apiService.getOrderDetails(validatedArgs.orderId, validatedArgs.forUpdate, validatedArgs.lockSource);
+        
+        if (!response.data) {
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `No order found with ID: ${validatedArgs.orderId}. Please check the order ID and try again.`
+                    }
+                ]
+            };
+        }
+
+        const order = response.data;
+        
+        // Format order status with emojis
+        const statusEmoji: { [key: string]: string } = {
+            'DRAFT': '📝',
+            'PENDING': '⏳',
+            'CONFIRMED': '✅',
+            'COMPLETED': '🏁',
+            'CANCELLED': '❌'
+        };
+
+        // Format order lines
+        const orderLinesList = order.orderLines?.slice(0, 10).map((line, idx) => 
+            `   ${idx + 1}. ${line.articleText1 || line.articleNo || 'No description'} (${line.articleNo || 'N/A'})\n` +
+            `      Quantity: ${line.quantity || 0} ${line.unitCode || ''} @ ${formatCurrency(line.unitPriceExVat || 0)} each\n` +
+            `      Total: ${formatCurrency(line.totalDiscountedPriceExVat || 0)} (excl. VAT)\n` +
+            `      Status: ${line.externalLineStatus || 'Active'} | Delivery: ${line.deliveryDate || 'TBD'}`
+        ).join('\n\n') || 'No order lines available';
+
+        // Map external data to FOHEPF table context
+        const fohepfMapping = `
+🗂️ **FOHEPF Table Mapping Context:**
+• Order Number (FONUMM): ${order.orderNo || 'N/A'}
+• Parent Order (FOFIRM): ${order.parentOrderNo || 'N/A'} 
+• Order Date (FOBDAT): ${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}
+• Delivery Date (FOLDAT): ${order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}
+• Customer Number (FOKUND): ${order.customer?.customerNo || 'N/A'}
+• Customer Name (FOKUNA): ${order.customer?.name || 'Unknown'}
+• Warehouse (FOLAGE): ${order.warehouseNo || 'N/A'}
+• Department (FOAVDE): ${order.departmentNo || 'N/A'}
+• Currency (FOVALK): ${order.currencyCode || 'N/A'}
+• Sales Rep (FOSELG): ${order.salesperson?.code || 'N/A'}
+• Delivery Method (FOLMAT): ${order.deliveryType?.code || 'N/A'}
+• Our Reference (FOVREF): ${order.ourReference || 'N/A'}
+• Customer Reference (FODREF): ${order.customerReference || 'N/A'}
+• Order Discount % (FORABP): ${order.orderDiscountPercent || 0}%
+• Total Ex VAT (FOTOTS): ${formatCurrency(order.totalDiscountedPriceExVat || 0)}
+• Total Inc VAT: ${formatCurrency(order.totalDiscountedPriceIncVat || 0)}`;
+
+        return {
+            content: [
+                {
+                    type: "text",
+                    text: `📋 **Order Details for #${order.orderNo || 'N/A'}:**\n\n` +
+                        `**Status:** ${statusEmoji[order.orderFlowIndicator] || '❓'} ${order.orderFlowIndicator || 'Unknown'}\n` +
+                        `**Customer:** ${order.customer?.name || 'Unknown'} (${order.customer?.customerNo || 'N/A'})\n` +
+                        `**Order Date:** ${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A'}\n` +
+                        `**Delivery Date:** ${order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}\n` +
+                        `**Warehouse:** ${order.warehouseNo || 'N/A'} | **Department:** ${order.departmentNo || 'N/A'}\n` +
+                        `**Currency:** ${order.currencyCode || 'N/A'}\n\n` +
+                        
+                        `**💰 Financial Summary:**\n` +
+                        `• Total Purchase Price (ex VAT): ${formatCurrency(order.totalPurchasePriceExVat || 0)}\n` +
+                        `• Total Cost Price (ex VAT): ${formatCurrency(order.totalCostPriceExVat || 0)}\n` +
+                        `• Order Discount: ${order.orderDiscountPercent || 0}%\n` +
+                        `• Total Amount (ex VAT): ${formatCurrency(order.totalDiscountedPriceExVat || 0)}\n` +
+                        `• Total Amount (inc VAT): ${formatCurrency(order.totalDiscountedPriceIncVat || 0)}\n\n` +
+                        
+                        `**📞 Contact Information:**\n` +
+                        `• Sales Person: ${order.salesperson?.name || 'N/A'} (${order.salesperson?.code || 'N/A'})\n` +
+                        `• Customer Contact: ${order.customerContact?.name || 'N/A'}\n` +
+                        `• Our Reference: ${order.ourReference || 'N/A'}\n` +
+                        `• Customer Reference: ${order.customerReference || 'N/A'}\n\n` +
+                        
+                        `**📦 Delivery Information:**\n` +
+                        `• Delivery Type: ${order.deliveryType?.name || 'N/A'} (${order.deliveryType?.code || 'N/A'})\n` +
+                        `• Delivery Address: ${order.deliveryAddress?.name || 'N/A'}\n` +
+                        `  ${order.deliveryAddress?.address1 || ''} ${order.deliveryAddress?.address2 || ''}\n` +
+                        `  ${order.deliveryAddress?.postalCode || ''} ${order.deliveryAddress?.city || ''}\n\n` +
+                        
+                        `**📋 Order Lines (${order.orderLines?.length || 0} items):**\n${orderLinesList}\n\n` +
+                        
+                        `${order.orderLines?.length && order.orderLines.length > 10 ? `...and ${order.orderLines.length - 10} more line item(s) not shown.\n\n` : ''}` +
+                        
+                        `${fohepfMapping}\n\n` +
+                        
+                        `**🔒 Lock Information:**\n` +
+                        `• Lock Key: ${order.lockKey || 'N/A'}\n` +
+                        `• Locked By: ${order.lockDetails?.lockedByUser || 'N/A'}\n` +
+                        `• Lock Source: ${order.lockDetails?.lockSource || 'N/A'}\n\n` +
+                        
                         `Is there anything else I can help you with today?`
                 }
             ]

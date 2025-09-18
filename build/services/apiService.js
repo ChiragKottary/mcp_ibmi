@@ -153,6 +153,47 @@ export class ApiService {
             throw new Error('Failed to get customers. Please try again or contact support.');
         }
     }
+    // Order Service Methods
+    async getOrderDetails(orderId, forUpdate = false, lockSource = 'NGN') {
+        try {
+            // Using the external order service endpoint
+            const orderServiceUrl = 'https://apps-order-service.cloud.test.egapps.no/api/orders';
+            const response = await axios.get(`${orderServiceUrl}/${orderId}`, {
+                params: {
+                    'for-update': forUpdate,
+                    'lock-source': lockSource
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                    'eg-apps-token': `${config.ORDER_SERVICE_TOKEN}`
+                },
+                timeout: config.API_TIMEOUT || 30000
+            });
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            };
+        }
+        catch (error) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting order details:', error);
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get order details for ID: ${orderId}. ${errorMessage}`);
+            }
+            else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to order service for order ID: ${orderId}. Please check your connection and try again.`);
+            }
+            else {
+                // Something else happened
+                throw new Error(`Failed to get order details for ID: ${orderId}. ${error.message}`);
+            }
+        }
+    }
     // Health Check
     async healthCheck() {
         try {

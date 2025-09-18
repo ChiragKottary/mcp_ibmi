@@ -18,6 +18,7 @@ export class ChatService {
   constructor(
     private mcpService: McpService,
     private claudeService: ClaudeService
+    
   ) {
     this.initializeChat();
   }
