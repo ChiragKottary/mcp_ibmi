@@ -2,31 +2,7 @@ import { apiService } from './apiService.js';
 import { z } from 'zod';
 import { safeToFixed, formatCurrency } from '../utils/formatters.js';
 
-// Tool schemas for validation
-export async function askGeminiTool(prompt: string) {
-    return await apiService.askGemini(prompt);
-}
-
-// Invoice schemas
-export const SearchInvoicesSchema = z.object({
-    customerNumber: z.string().optional(),
-    customerName: z.string().optional(),
-    fromDate: z.string().optional(),
-    toDate: z.string().optional(),
-    orderNumber: z.string().optional(),
-    invoiceNumber: z.string().optional(),
-    limit: z.number().optional(),
-    offset: z.number().optional()
-});
-
-export const GetInvoiceDetailsSchema = z.object({
-    invoiceId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val, 10) : val),
-});
-
-export const GetAllInvoicesSchema = z.object({
-    limit: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val, 10) : val).optional()
-});
-
+// Schemas for the three implemented tools
 export const GetCustomerInvoicesSchema = z.object({
     customerNo: z.string(),
     companyId: z.union([z.number(), z.string()]).transform((val) => {
@@ -60,27 +36,6 @@ export const GetCustomerProjectInvoicesSchema = z.object({
     }).optional().default(10)
 });
 
-export const GetInvoiceStatisticsSchema = z.object({
-    fromDate: z.string().optional(),
-    toDate: z.string().optional(),
-    customerNumber: z.string().optional()
-});
-
-export const GetInvoiceLineItemsSchema = z.object({
-    invoiceNumber: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val, 10) : val),
-});
-
-export const GetInvoiceHeaderSchema = z.object({
-    invoiceId: z.union([z.number(), z.string()]).transform((val) => typeof val === 'string' ? parseInt(val, 10) : val),
-});
-
-// Customer schemas
-export const GetCustomersSchema = z.object({
-    search: z.string().optional(),
-    limit: z.number().optional()
-});
-
-// Order service schemas
 export const GetOrderDetailsSchema = z.object({
     externalSystem: z.string().optional().default('NEXSTEP'),
     orderNumber: z.string().transform((val) => {

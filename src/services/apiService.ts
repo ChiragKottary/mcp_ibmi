@@ -106,7 +106,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json',
-                        'eg-apps-token': process.env.ORDER_SERVICE_TOKEN
+                        'eg-apps-token': process.env.API_KEY
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }
@@ -157,7 +157,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json;charset=UTF-8',
-                        'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                        'eg-apps-token': process.env.API_KEY
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }
@@ -209,7 +209,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json;charset=UTF-8',
-                        'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                        'eg-apps-token': process.env.API_KEY
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }
@@ -267,28 +267,7 @@ export class ApiService {
             };
         }
     }
-    async askGemini(prompt: string) {
-    try {
-      const response = await axios.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
-        {
-          contents: [{ parts: [{ text: prompt }] }]
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": process.env.GEMINI_API_KEY
-          }
-        }
-      );
 
-      return response.data.candidates[0].content.parts[0].text;
-    } catch (error: any) {
-      // Using stderr for logs to avoid interfering with MCP protocol
-      console.error("Gemini API Error:", error.response?.data || error.message);
-      throw new Error("Failed to get response from Gemini");
-    }
-  }
 }
 
 // Export singleton instance
