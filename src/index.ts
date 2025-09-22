@@ -31,108 +31,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
         tools: [
             {
-                name: "search_invoices",
-                description: "Search for invoices based on various criteria like customer name, date range, order number, etc.",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        customerNumber: { type: "string", description: "Filter by customer number" },
-                        customerName: { type: "string", description: "Filter by customer name (case-insensitive)" },
-                        fromDate: { type: "string", description: "Start date for invoice search (YYYY-MM-DD)" },
-                        toDate: { type: "string", description: "End date for invoice search (YYYY-MM-DD)" },
-                        orderNumber: { type: "string", description: "Filter by order number" },
-                        invoiceNumber: { type: "string", description: "Filter by invoice number" },
-                        limit: { type: "number", description: "Number of results to fetch (default: 100)" },
-                        offset: { type: "number", description: "Offset for pagination (default: 0)" }
-                    }
-                }
-            },
-            {
-                name: "get_invoice_details",
-                description: "Get detailed information about a specific invoice by ID including header, line items and summary",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        invoiceId: { type: "string", description: "The invoice ID to retrieve details for" }
-                    },
-                    required: ["invoiceId"]
-                }
-            },
-            {
-                name: "get_all_invoices",
-                description: "Get a list of all invoices in the system",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        limit: { type: "number", description: "Number of results to fetch (default: 100)" }
-                    }
-                }
-            },
-            {
-                name: "get_customer_invoices",
-                description: "Get all invoices for a specific customer",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        customerNumber: { type: "string", description: "Customer number to fetch invoices for" }
-                    },
-                    required: ["customerNumber"]
-                }
-            },
-            {
-                name: "get_invoice_statistics",
-                description: "Get statistical information about invoices with optional date and customer filters",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        fromDate: { type: "string", description: "Start date (format: YYYY-MM-DD)" },
-                        toDate: { type: "string", description: "End date (format: YYYY-MM-DD)" },
-                        customerNumber: { type: "string", description: "Filter statistics by customer number" }
-                    }
-                }
-            },
-            {
-                name: "get_invoice_line_items",
-                description: "Get detailed line items for a specific invoice",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        invoiceNumber: { type: "string", description: "The invoice number to get line items for" }
-                    },
-                    required: ["invoiceNumber"]
-                }
-            },
-            {
-                name: "get_invoice_header",
-                description: "Get just the header data for a specific invoice",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        invoiceId: { type: "string", description: "The invoice ID to retrieve header for" }
-                    },
-                    required: ["invoiceId"]
-                }
-            },
-            {
-                name: "get_customers",
-                description: "Get a list of customers with optional search filter",
-                inputSchema: {
-                    type: "object",
-                    properties: {
-                        search: { type: "string", description: "Search by customer name or number" },
-                        limit: { type: "number", description: "Number of results to fetch (default: 100)" }
-                    }
-                }
-            },
-            {
                 name: "get_order_details",
-                description: "Get detailed information about a specific order from the external order service API. Maps response to FOHEPF table structure context.",
+                description: "Get detailed information about a specific order from the external order service API using external system and order number. Maps response to FOHEPF table structure context.",
                 inputSchema: {
                     type: "object",
                     properties: {
-                        orderId: { 
-                            type: ["number", "string"], 
-                            description: "The order ID to retrieve details for (e.g., 7319)" 
+                        externalSystem: { 
+                            type: "string", 
+                            description: "The external system name (default: 'NEXSTEP')" 
+                        },
+                        orderNumber: { 
+                            type: "string", 
+                            description: "The order number to retrieve details for. Can be just the number (e.g., '534955') or with suffix (e.g., '534955-0'). If no suffix is provided, '-0' will be automatically added." 
                         },
                         forUpdate: { 
                             type: "boolean", 
@@ -141,9 +51,69 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                         lockSource: { 
                             type: "string", 
                             description: "Source of the lock (default: 'NGN')" 
+                        },
+                        includeDeleted: { 
+                            type: "boolean", 
+                            description: "Whether to include deleted orders (default: true)" 
                         }
                     },
-                    required: ["orderId"]
+                    required: ["orderNumber"]
+                }
+            },
+            {
+                name: "get_customer_invoices",
+                description: "Get invoices for a specific customer from the invoice cloud service API. Returns paginated invoice summaries including amounts, dates, and project information.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        customerNo: { 
+                            type: "string", 
+                            description: "The customer number to retrieve invoices for (e.g., '310001')" 
+                        },
+                        companyId: { 
+                            type: ["number", "string"], 
+                            description: "The company ID (default: 0)" 
+                        },
+                        offset: { 
+                            type: ["number", "string"], 
+                            description: "Pagination offset (default: 0)" 
+                        },
+                        limit: { 
+                            type: ["number", "string"], 
+                            description: "Maximum number of invoices to return (default: 10)" 
+                        }
+                    },
+                    required: ["customerNo"]
+                }
+            },
+            {
+                name: "get_customer_project_invoices",
+                description: "Get invoices for a specific customer and project from the invoice cloud service API. Returns paginated invoice summaries for a specific project including amounts, dates, and project information.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        customerNo: { 
+                            type: "string", 
+                            description: "The customer number to retrieve invoices for (e.g., '310001')" 
+                        },
+                        projectNo: { 
+                            type: "string", 
+                            description: "The project number to filter invoices by (e.g., '75932')" 
+                        },
+                        companyId: { 
+                            type: ["number", "string"], 
+                            description: "The company ID (default: 0)" 
+                        },
+                        offset: { 
+                            type: ["number", "string"], 
+                            description: "Pagination offset (default: 0)" 
+                        },
+                        limit: { 
+                            type: ["number", "string"], 
+                            description: "Maximum number of invoices to return (default: 10)" 
+                        }
+                    },
+                    required: ["customerNo", "projectNo"]
                 }
             }
         ]
@@ -164,54 +134,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     try {
         // Log which endpoint will be called based on the tool name
         const endpointMap: Record<string, string> = {
-            "search_invoices": "/api/direct-invoices",
-            "get_invoice_details": "/api/direct-invoice",
-            "get_all_invoices": "/api/direct-invoice-list",
-            "get_customer_invoices": "/api/direct-customer-invoices",
-            "get_invoice_statistics": "/api/direct-invoices/stats",
-            "get_invoice_line_items": "/api/direct-invoices/items",
-            "get_invoice_header": "/api/invoice-header-exec",
-            "get_customers": "/api/direct-customers",
-            "get_order_details": "https://apps-order-service.cloud.test.egapps.no/api/orders"
+            "get_order_details": "https://apps-order-service.cloud.test.egapps.no/api/orders/externalsystem/{externalSystem}/order/{orderNumber}",
+            "get_customer_invoices": "https://invoice.cloud.test.egapps.no/api/v2/companies/{companyId}/customers/{customerNo}/invoices",
+            "get_customer_project_invoices": "https://invoice.cloud.test.egapps.no/api/companies/{companyId}/customers/{customerNo}/projects/{projectNo}/invoices"
         };
         
         console.error(`🌐 API Endpoint: ${endpointMap[name] || "unknown"}`);
         
         switch (name) {
-            case "search_invoices":
-                result = await toolsService.searchInvoices(args || {});
-                break;
-                
-            case "get_invoice_details":
-                result = await toolsService.getInvoiceDetails(args || {});
-                break;
-                
-            case "get_all_invoices":
-                result = await toolsService.getAllInvoices(args || {});
+            case "get_order_details":
+                result = await toolsService.getOrderDetails(args || {});
                 break;
                 
             case "get_customer_invoices":
                 result = await toolsService.getCustomerInvoices(args || {});
                 break;
                 
-            case "get_invoice_statistics":
-                result = await toolsService.getInvoiceStatistics(args || {});
-                break;
-                
-            case "get_invoice_line_items":
-                result = await toolsService.getInvoiceLineItems(args || {});
-                break;
-                
-            case "get_invoice_header":
-                result = await toolsService.getInvoiceHeader(args || {});
-                break;
-                
-            case "get_customers":
-                result = await toolsService.getCustomers(args || {});
-                break;
-                
-            case "get_order_details":
-                result = await toolsService.getOrderDetails(args || {});
+            case "get_customer_project_invoices":
+                result = await toolsService.getCustomerProjectInvoices(args || {});
                 break;
                 
             default:
@@ -252,7 +192,7 @@ async function main() {
     await server.connect(transport);
 
     console.error("MCP Server connected and ready!");
-    console.error("Available tools: search_invoices, get_invoice_details, get_all_invoices, get_customer_invoices, get_invoice_statistics, get_invoice_line_items, get_invoice_header, get_customers, get_order_details");
+    console.error("Available tools: get_order_details, get_customer_invoices, get_customer_project_invoices");
 }
 
 // Start the server

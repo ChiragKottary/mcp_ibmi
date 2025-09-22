@@ -2,77 +2,44 @@
 
 ## 🎯 Overview
 
-Your MCP server is now complete with 6 powerful tools for querying invoice and order data. The server connects to your Node.js API backend and provides natural language access to BuildMate's business data.
+Your MCP server provides powerful tools for querying invoice and order data. The server connects to external APIs and provides natural language access to BuildMate's business data.
 
 ## 🛠️ Available Tools
 
-### 1. Invoice Management
-
-#### `search_invoices`
-**Description:** Search for invoices based on various criteria
-**Parameters:**
-- `customerId` (optional): Filter by customer ID
-- `status` (optional): Filter by status (paid, pending, overdue, draft)
-- `minAmount` (optional): Minimum invoice amount
-- `maxAmount` (optional): Maximum invoice amount
-- `startDate` (optional): Start date (YYYY-MM-DD)
-- `endDate` (optional): End date (YYYY-MM-DD)
-
-**Example Usage:**
-- "Show me all pending invoices"
-- "Find invoices for customer CUST-001"
-- "Show invoices between $1000 and $5000"
-
-#### `get_invoice_details`
-**Description:** Get detailed information about a specific invoice
-**Parameters:**
-- `invoiceId` (required): The invoice ID to retrieve
-
-**Example Usage:**
-- "Get details for invoice INV-2024-001"
-- "Show me invoice INV-2024-002"
-
-#### `get_invoices_summary`
-**Description:** Get summary statistics for all invoices
-**Parameters:** None
-
-**Example Usage:**
-- "What's the total amount of all invoices?"
-- "Give me a summary of invoice statistics"
-
-### 2. Order Management
-
-#### `search_orders`
-**Description:** Search for orders based on various criteria
-**Parameters:**
-- `customerId` (optional): Filter by customer ID
-- `status` (optional): Filter by status (delivered, shipped, processing, pending)
-- `minAmount` (optional): Minimum order amount
-- `maxAmount` (optional): Maximum order amount
-- `startDate` (optional): Start date (YYYY-MM-DD)
-- `endDate` (optional): End date (YYYY-MM-DD)
-
-**Example Usage:**
-- "Show me orders from customer ABC Corporation"
-- "What orders are currently being processed?"
-- "Find orders placed last month"
+### 1. Order Management
 
 #### `get_order_details`
-**Description:** Get detailed information about a specific order
+**Description:** Get detailed information about a specific order from the external order service API using external system and order number. Maps response to FOHEPF table structure context.
 **Parameters:**
-- `orderId` (required): The order ID to retrieve
+- `orderNumber` (required): The order number to retrieve details for (e.g., '534955-0')
+- `externalSystem` (optional): The external system name (default: 'NEXSTEP')
+- `forUpdate` (optional): Whether to lock the order for update (default: false)
+- `lockSource` (optional): Source of the lock (default: 'NGN')
+- `includeDeleted` (optional): Whether to include deleted orders (default: true)
+
+**API Endpoint:** `https://apps-order-service.cloud.test.egapps.no/api/orders/externalsystem/{externalSystem}/order/{orderNumber}`
 
 **Example Usage:**
-- "Get details for order ORD-2024-001"
-- "Show me order ORD-2024-002"
+- "Get details for order 534955-0"
+- "Show me order 534955-0 for update"
+- "Get order 123456-1 from NEXSTEP system"
 
-#### `get_orders_summary`
-**Description:** Get summary statistics for all orders
-**Parameters:** None
+### 2. Invoice Management
+
+#### `get_customer_invoices`
+**Description:** Get invoices for a specific customer from the invoice cloud service API. Returns paginated invoice summaries including amounts, dates, and project information.
+**Parameters:**
+- `customerNo` (required): The customer number to retrieve invoices for (e.g., '310001')
+- `companyId` (optional): The company ID (default: 0)
+- `offset` (optional): Pagination offset (default: 0)
+- `limit` (optional): Maximum number of invoices to return (default: 10)
+
+**API Endpoint:** `https://invoice.cloud.test.egapps.no/api/v2/companies/{companyId}/customers/{customerNo}/invoices`
 
 **Example Usage:**
-- "What's the total amount of all orders?"
-- "Give me a summary of order statistics"
+- "Get invoices for customer 310001"
+- "Show me invoices for customer 310001 with limit 5"
+- "Get invoices for customer 310001 starting from offset 10"
 
 ## 🔌 API Integration
 

@@ -1,165 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { config } from '../config.js';
 
-// Types based on actual API endpoints
-export interface InvoiceHeaderItem {
-    // Original field names from DB2/IBM i
-    SOFIRM?: string;      // Company/Firm
-    SOAARR?: string;      // Year
-    SOBINR?: string;      // Document number
-    SONUMM?: string;      // Order number
-    SOSUFF?: string;      // Suffix
-    SOOTYP?: string;      // Order type
-    SOKUND?: string;      // Customer number
-    SOKUNA?: string;      // Customer name
-    SONAVN?: string;      // Customer name alt
-    SOADR1?: string;      // Address 1
-    SOADR2?: string;      // Address 2
-    SOSTED?: string;      // Place/City
-    SOBDAT?: string;      // Order date
-    SOLDAT?: string;      // Delivery date
-    SOFFDA?: string;      // Due date
-    SOSALP?: string;      // Sales amount
-    SOFSUM?: string;      // Total sum
-    SOUSER?: string;      // User
-    SODATE?: string;      // Created date
-    SOTIME?: string;      // Created time
-    
-    // Additional IBM i field names from different API endpoints
-    INVOICENUMBER?: string;
-    CUSTOMERNUMBER?: string;
-    CUSTOMERNAME?: string;
-    ORDERDATE?: string;
-    DELIVERYDATE?: string;
-    SHIPMENTDATE?: string;
-    TOTALAMOUNT?: string;
-    CURRENCY?: string;
-    CREATEDDATE?: string;
-    
-    // Mapped fields for compatibility
-    invoiceNumber?: string;
-    batchNumber?: string;
-    orderNumber?: string;
-    orderSuffix?: string;
-    orderType?: string;
-    customerNumber?: string;
-    customerName?: string;
-    orderDate?: string;
-    deliveryDate?: string;
-    invoiceAmount?: number;
-    currency?: string;
-    paymentTerms?: string;
-    status?: 'paid' | 'pending' | 'overdue' | 'draft';
-}
-
-export interface InvoiceLineItem {
-    lineNumber: string;
-    itemNumber: string;
-    description: string;
-    quantity: number;
-    unit?: string;
-    salesPrice: number;
-    discount1?: number;
-    discount2?: number;
-    vatCode?: string;
-    vatAmount?: number;
-    totalAmount: number;
-    // IBM i field names from direct-invoice API
-    SDLINE?: string;        // Line number
-    SDVARE?: string;        // Item number
-    SDTEK1?: string;        // Description line 1
-    SDTEK2?: string;        // Description line 2
-    SDTEK3?: string;        // Description line 3
-    SDANTA?: string;        // Quantity
-    SDENH1?: string;        // Unit
-    SDSAPR?: string;        // Sales price
-    SDRAB1?: string;        // Discount 1
-    SDRAB2?: string;        // Discount 2
-    SDOMVA?: string;        // VAT code
-    SDSALG?: string;        // Total amount (sales)
-    SDKOST?: string;        // Cost amount
-}
-
-export interface InvoiceDetail {
-    header: InvoiceHeaderItem;
-    details: InvoiceLineItem[];
-    summary: {
-        invoiceNumber: string;
-        customerName: string;
-        orderDate: string;
-        totalLines: number;
-        totalAmount: number;
-        totalVAT: number;
-        totalQuantity: number;
-        grandTotal: number;
-    };
-}
-
-export interface Customer {
-    customerNumber: string;
-    customerName: string;
-    address?: string;
-    city?: string;
-    contactPerson?: string;
-    phone?: string;
-    email?: string;
-    accountManager?: string;
-    // IBM i field names from different endpoints
-    CUSTOMERNUMBER?: string;
-    CUSTOMERNAME?: string;
-    SOLKUN?: string;       // Customer number from direct-customers
-    SOKUNA?: string;       // Customer name from direct-customers
-    SONAVN?: string;       // Alternative customer name
-    SOSTED?: string;       // Location/city from direct-customers
-}
-
-export interface InvoiceStats {
-    overview: {
-        invoiceCount: number;
-        totalAmount: number;
-        // IBM i field names
-        INVOICECOUNT?: string;
-        TOTALAMOUNT?: string;
-    };
-    monthly: Array<{
-        month: string;
-        invoiceCount: number;
-        totalAmount: number;
-        // IBM i field names
-        YEAR?: string;
-        MONTH?: string;
-        INVOICECOUNT?: string;
-        TOTALAMOUNT?: string;
-    }>;
-    topCustomers: Array<{
-        customerNumber: string;
-        customerName: string;
-        invoiceCount: number;
-        totalAmount: number;
-        // IBM i field names
-        CUSTOMERNUMBER?: string;
-        CUSTOMERNAME?: string;
-        INVOICECOUNT?: string;
-        TOTALAMOUNT?: string;
-    }>;
-}
-
-export interface InvoiceSummary {
-    totalInvoices: number;
-    totalAmount: number;
-    paidAmount: number;
-    pendingAmount: number;
-    overdueAmount: number;
-    draftAmount: number;
-}
-
-export interface CustomerInvoiceSummary {
-    customerNumber: string;
-    customerName: string;
-    invoiceCount: number;
-    totalValue: number;
-    invoices: InvoiceHeaderItem[];
-}
+// Order Service Types
 
 // Order Service Types
 export interface OrderLine {
@@ -388,6 +230,41 @@ export interface ApiError {
     details?: string;
 }
 
+// Invoice Service Types
+export interface Address {
+    streetOrPlace?: string;
+    streetNumber?: string;
+    postalCode?: string;
+    city?: string;
+    country?: string;
+}
+
+export interface CustomerProject {
+    projectNo?: string;
+    projectName?: string;
+    address?: Address;
+}
+
+export interface InvoiceSummary {
+    id: string;
+    invoiceNo: string;
+    customerNo: string;
+    customerName: string;
+    invoiceDate: string;
+    dueDate: string;
+    amountIncVAT: number;
+    amountExVAT: number;
+    customerProject?: CustomerProject;
+    kid?: string;
+    paymentMode?: string;
+}
+
+export interface CustomerInvoicesResponse {
+    offset: number;
+    limit: number;
+    invoiceSummaries: InvoiceSummary[];
+}
+
 // API Service Class
 export class ApiService {
     private client: AxiosInstance;
@@ -461,127 +338,35 @@ export class ApiService {
         }
     }
 
-    // Invoice Methods
-    async searchInvoices(filters: {
-        customerNumber?: string;
-        customerName?: string;
-        fromDate?: string;
-        toDate?: string;
-        orderNumber?: string;
-        invoiceNumber?: string;
-        limit?: number;
-        offset?: number;
-    }): Promise<ApiResponse<InvoiceHeaderItem[]>> {
-        try {
-            const response = await this.client.get('/api/direct-invoices', { params: filters });
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('❌ Error searching invoices:', error);
-            throw new Error('Failed to search invoices. Please try again or contact support.');
-        }
-    }
-
-    async getInvoiceDetails(invoiceId: number): Promise<ApiResponse<InvoiceDetail>> {
-        try {
-            const response = await this.client.get(`/api/direct-invoice/${invoiceId}`);
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice details:', error);
-            throw new Error(`Failed to get invoice details for ID: ${invoiceId}. Please verify the invoice ID and try again.`);
-        }
-    }
-
-    async getAllInvoices(limit?: number): Promise<ApiResponse<InvoiceHeaderItem[]>> {
-        try {
-            const response = await this.client.get('/api/direct-invoice-list', { params: { limit } });
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting all invoices:', error);
-            throw new Error('Failed to get invoices list. Please try again or contact support.');
-        }
-    }
-
-    async getCustomerInvoices(customerNumber: number): Promise<ApiResponse<CustomerInvoiceSummary>> {
-        try {
-            const response = await this.client.get(`/api/direct-customer-invoices/${customerNumber}`);
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting customer invoices:', error);
-            throw new Error(`Failed to get invoices for customer: ${customerNumber}. Please try again.`);
-        }
-    }
-    
-    async getInvoiceStatistics(filters?: {
-        fromDate?: string;
-        toDate?: string;
-        customerNumber?: string;
-    }): Promise<ApiResponse<InvoiceStats>> {
-        try {
-            const response = await this.client.get('/api/direct-invoices/stats', { params: filters });
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice statistics:', error);
-            throw new Error('Failed to get invoice statistics. Please try again or contact support.');
-        }
-    }
-
-    async getInvoiceLineItems(invoiceNumber: number): Promise<ApiResponse<InvoiceLineItem[]>> {
-        try {
-            const response = await this.client.get(`/api/direct-invoices/${invoiceNumber}/items`);
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice line items:', error);
-            throw new Error(`Failed to get line items for invoice: ${invoiceNumber}. Please try again.`);
-        }
-    }
-
-    async getInvoiceHeader(invoiceId: number): Promise<ApiResponse<InvoiceHeaderItem>> {
-        try {
-            const response = await this.client.get(`/api/invoice-header-exec/${invoiceId}`);
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice header:', error);
-            throw new Error(`Failed to get invoice header for ID: ${invoiceId}. Please try again.`);
-        }
-    }
-    
-    // Customer Methods
-    async getCustomers(search?: string, limit?: number): Promise<ApiResponse<Customer[]>> {
-        try {
-            const response = await this.client.get('/api/direct-customers', { params: { search, limit } });
-            return response.data;
-        } catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting customers:', error);
-            throw new Error('Failed to get customers. Please try again or contact support.');
-        }
-    }
-
     // Order Service Methods
-    async getOrderDetails(orderId: number, forUpdate: boolean = false, lockSource: string = 'NGN'): Promise<ApiResponse<OrderDetails>> {
+    async getOrderDetails(
+        externalSystem: string = 'NEXSTEP',
+        orderNumber: string,
+        forUpdate: boolean = false, 
+        lockSource: string = 'NGN',
+        includeDeleted: boolean = true
+    ): Promise<ApiResponse<OrderDetails>> {
         try {
-            // Using the external order service endpoint
+            // Using the external order service endpoint with new format
             const orderServiceUrl = 'https://apps-order-service.cloud.test.egapps.no/api/orders';
             
-            const response = await axios.get(`${orderServiceUrl}/${orderId}`, {
-                params: {
-                    'for-update': forUpdate,
-                    'lock-source': lockSource
-                },
-                headers: {
-                    'Content-Type': 'application/json',
-                    'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
-                    'eg-apps-token': `${config.ORDER_SERVICE_TOKEN}`
-                },
-                timeout: config.API_TIMEOUT || 30000
-            });
+            const response = await axios.get(
+                `${orderServiceUrl}/externalsystem/${externalSystem}/order/${orderNumber}`,
+                {
+                    params: {
+                        'for-update': forUpdate,
+                        'lock-source': lockSource,
+                        'include-deleted': includeDeleted
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                        'accept': 'application/json',
+                        'eg-apps-token': config.ORDER_SERVICE_TOKEN
+                    },
+                    timeout: config.API_TIMEOUT || 30000
+                }
+            );
             
             return {
                 success: true,
@@ -595,13 +380,116 @@ export class ApiService {
             if (error.response) {
                 // Server responded with error status
                 const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
-                throw new Error(`Failed to get order details for ID: ${orderId}. ${errorMessage}`);
+                throw new Error(`Failed to get order details for external system: ${externalSystem}, order: ${orderNumber}. ${errorMessage}`);
             } else if (error.request) {
                 // Request was made but no response received
-                throw new Error(`Failed to connect to order service for order ID: ${orderId}. Please check your connection and try again.`);
+                throw new Error(`Failed to connect to order service for order: ${orderNumber}. Please check your connection and try again.`);
             } else {
                 // Something else happened
-                throw new Error(`Failed to get order details for ID: ${orderId}. ${error.message}`);
+                throw new Error(`Failed to get order details for order: ${orderNumber}. ${error.message}`);
+            }
+        }
+    }
+
+    // Customer Invoice Service Methods
+    async getCustomerInvoices(
+        companyId: number = 0, 
+        customerNo: string, 
+        offset: number = 0, 
+        limit: number = 10
+    ): Promise<ApiResponse<CustomerInvoicesResponse>> {
+        try {
+            // Using the invoice cloud endpoint
+            const invoiceServiceUrl = 'https://invoice.cloud.test.egapps.no/api/v2';
+            
+            const response = await axios.get(
+                `${invoiceServiceUrl}/companies/${companyId}/customers/${customerNo}/invoices`,
+                {
+                    params: {
+                        offset,
+                        limit
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                        'accept': 'application/json;charset=UTF-8',
+                        'eg-apps-token': config.INVOICE_SERVICE_TOKEN
+                    },
+                    timeout: config.API_TIMEOUT || 30000
+                }
+            );
+            
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            } as any;
+        } catch (error: any) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting customer invoices:', error);
+            
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get invoices for customer: ${customerNo}. ${errorMessage}`);
+            } else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to invoice service for customer: ${customerNo}. Please check your connection and try again.`);
+            } else {
+                // Something else happened
+                throw new Error(`Failed to get customer invoices for: ${customerNo}. ${error.message}`);
+            }
+        }
+    }
+
+    // Get invoices by customer and project
+    async getCustomerProjectInvoices(
+        companyId: number = 0, 
+        customerNo: string, 
+        projectNo: string,
+        offset: number = 0, 
+        limit: number = 10
+    ): Promise<ApiResponse<CustomerInvoicesResponse>> {
+        try {
+            // Using the invoice cloud endpoint for project-specific invoices
+            const invoiceServiceUrl = 'https://invoice.cloud.test.egapps.no/api';
+            
+            const response = await axios.get(
+                `${invoiceServiceUrl}/companies/${companyId}/customers/${customerNo}/projects/${projectNo}/invoices`,
+                {
+                    params: {
+                        offset,
+                        limit
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                        'accept': 'application/json;charset=UTF-8',
+                        'eg-apps-token': config.INVOICE_SERVICE_TOKEN
+                    },
+                    timeout: config.API_TIMEOUT || 30000
+                }
+            );
+            
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            } as any;
+        } catch (error: any) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting customer project invoices:', error);
+            
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get invoices for customer: ${customerNo}, project: ${projectNo}. ${errorMessage}`);
+            } else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to invoice service for customer: ${customerNo}, project: ${projectNo}. Please check your connection and try again.`);
+            } else {
+                // Something else happened
+                throw new Error(`Failed to get customer project invoices for: ${customerNo}, project: ${projectNo}. ${error.message}`);
             }
         }
     }
