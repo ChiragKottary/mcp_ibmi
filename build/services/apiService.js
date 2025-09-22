@@ -3,7 +3,7 @@ import { config } from '../config.js';
 // API Service Class
 export class ApiService {
     client;
-    baseUrl;
+    baseUrl = '';
     constructor() {
         this.baseUrl = config.NODEJS_API_BASE_URL;
         this.client = axios.create({
@@ -78,7 +78,7 @@ export class ApiService {
                     'Content-Type': 'application/json',
                     'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                     'accept': 'application/json',
-                    'eg-apps-token': process.env.ORDER_SERVICE_TOKEN
+                    'eg-apps-token': config.ORDER_SERVICE_TOKEN
                 },
                 timeout: config.API_TIMEOUT || 30000
             });
@@ -120,7 +120,7 @@ export class ApiService {
                     'Content-Type': 'application/json',
                     'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                     'accept': 'application/json;charset=UTF-8',
-                    'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                    'eg-apps-token': config.INVOICE_SERVICE_TOKEN
                 },
                 timeout: config.API_TIMEOUT || 30000
             });
@@ -162,7 +162,7 @@ export class ApiService {
                     'Content-Type': 'application/json',
                     'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                     'accept': 'application/json;charset=UTF-8',
-                    'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                    'eg-apps-token': config.INVOICE_SERVICE_TOKEN
                 },
                 timeout: config.API_TIMEOUT || 30000
             });
@@ -218,24 +218,6 @@ export class ApiService {
                 message: 'API is not responding',
                 timestamp: new Date().toISOString()
             };
-        }
-    }
-    async askGemini(prompt) {
-        try {
-            const response = await axios.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent", {
-                contents: [{ parts: [{ text: prompt }] }]
-            }, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-goog-api-key": process.env.GEMINI_API_KEY
-                }
-            });
-            return response.data.candidates[0].content.parts[0].text;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error("Gemini API Error:", error.response?.data || error.message);
-            throw new Error("Failed to get response from Gemini");
         }
     }
 }

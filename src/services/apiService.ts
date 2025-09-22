@@ -16,6 +16,7 @@ export class ApiService {
 
 
     constructor() {
+        this.baseUrl = config.NODEJS_API_BASE_URL;
 
         this.client = axios.create({
             baseURL: this.baseUrl,
@@ -106,7 +107,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json',
-                        'eg-apps-token': process.env.API_KEY
+                        'eg-apps-token': config.ORDER_SERVICE_TOKEN
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }
@@ -157,7 +158,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json;charset=UTF-8',
-                        'eg-apps-token': process.env.API_KEY
+                        'eg-apps-token': config.INVOICE_SERVICE_TOKEN
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }
@@ -209,7 +210,7 @@ export class ApiService {
                         'Content-Type': 'application/json',
                         'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
                         'accept': 'application/json;charset=UTF-8',
-                        'eg-apps-token': process.env.API_KEY
+                        'eg-apps-token': config.INVOICE_SERVICE_TOKEN
                     },
                     timeout: config.API_TIMEOUT || 30000
                 }

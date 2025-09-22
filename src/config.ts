@@ -1,8 +1,17 @@
 // IBM i Invoice & Order MCP Server Configuration
 export const config = {
 
-    // API Configuration
+    // Debug mode (set to 'true' to enable debug logs)
+    DEBUG: process.env.DEBUG || 'false',
 
+    // API Configuration
+    NODEJS_API_BASE_URL: process.env.NODEJS_API_BASE_URL || '',
+
+    // Order Service Configuration
+    ORDER_SERVICE_TOKEN: process.env.API_KEY ,
+
+    // Invoice Service Configuration
+    INVOICE_SERVICE_TOKEN: process.env.API_KEY,
 
     // Server Configuration
     SERVER_NAME: 'IBM i Invoice & Order MCP Server',
