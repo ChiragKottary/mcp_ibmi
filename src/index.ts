@@ -186,7 +186,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // Main function
 async function main() {
     console.error(`Starting ${config.SERVER_NAME} v${config.SERVER_VERSION}...`);
-    console.error(`API Base URL: ${config.NODEJS_API_BASE_URL}`);
+    console.error(`API Base URL: ${""}`);
 
     const transport = new StdioServerTransport();
     await server.connect(transport);
