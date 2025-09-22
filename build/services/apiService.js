@@ -63,110 +63,22 @@ export class ApiService {
             };
         }
     }
-    // Invoice Methods
-    async searchInvoices(filters) {
-        try {
-            const response = await this.client.get('/api/direct-invoices', { params: filters });
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('❌ Error searching invoices:', error);
-            throw new Error('Failed to search invoices. Please try again or contact support.');
-        }
-    }
-    async getInvoiceDetails(invoiceId) {
-        try {
-            const response = await this.client.get(`/api/direct-invoice/${invoiceId}`);
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice details:', error);
-            throw new Error(`Failed to get invoice details for ID: ${invoiceId}. Please verify the invoice ID and try again.`);
-        }
-    }
-    async getAllInvoices(limit) {
-        try {
-            const response = await this.client.get('/api/direct-invoice-list', { params: { limit } });
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting all invoices:', error);
-            throw new Error('Failed to get invoices list. Please try again or contact support.');
-        }
-    }
-    async getCustomerInvoices(customerNumber) {
-        try {
-            const response = await this.client.get(`/api/direct-customer-invoices/${customerNumber}`);
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting customer invoices:', error);
-            throw new Error(`Failed to get invoices for customer: ${customerNumber}. Please try again.`);
-        }
-    }
-    async getInvoiceStatistics(filters) {
-        try {
-            const response = await this.client.get('/api/direct-invoices/stats', { params: filters });
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice statistics:', error);
-            throw new Error('Failed to get invoice statistics. Please try again or contact support.');
-        }
-    }
-    async getInvoiceLineItems(invoiceNumber) {
-        try {
-            const response = await this.client.get(`/api/direct-invoices/${invoiceNumber}/items`);
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice line items:', error);
-            throw new Error(`Failed to get line items for invoice: ${invoiceNumber}. Please try again.`);
-        }
-    }
-    async getInvoiceHeader(invoiceId) {
-        try {
-            const response = await this.client.get(`/api/invoice-header-exec/${invoiceId}`);
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting invoice header:', error);
-            throw new Error(`Failed to get invoice header for ID: ${invoiceId}. Please try again.`);
-        }
-    }
-    // Customer Methods
-    async getCustomers(search, limit) {
-        try {
-            const response = await this.client.get('/api/direct-customers', { params: { search, limit } });
-            return response.data;
-        }
-        catch (error) {
-            // Using stderr for logs to avoid interfering with MCP protocol
-            console.error('Error getting customers:', error);
-            throw new Error('Failed to get customers. Please try again or contact support.');
-        }
-    }
     // Order Service Methods
-    async getOrderDetails(orderId, forUpdate = false, lockSource = 'NGN') {
+    async getOrderDetails(externalSystem = 'NEXSTEP', orderNumber, forUpdate = false, lockSource = 'NGN', includeDeleted = true) {
         try {
-            // Using the external order service endpoint
+            // Using the external order service endpoint with new format
             const orderServiceUrl = 'https://apps-order-service.cloud.test.egapps.no/api/orders';
-            const response = await axios.get(`${orderServiceUrl}/${orderId}`, {
+            const response = await axios.get(`${orderServiceUrl}/externalsystem/${externalSystem}/order/${orderNumber}`, {
                 params: {
                     'for-update': forUpdate,
-                    'lock-source': lockSource
+                    'lock-source': lockSource,
+                    'include-deleted': includeDeleted
                 },
                 headers: {
                     'Content-Type': 'application/json',
                     'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
-                    'eg-apps-token': `${config.ORDER_SERVICE_TOKEN}`
+                    'accept': 'application/json',
+                    'eg-apps-token': process.env.ORDER_SERVICE_TOKEN
                 },
                 timeout: config.API_TIMEOUT || 30000
             });
@@ -182,15 +94,99 @@ export class ApiService {
             if (error.response) {
                 // Server responded with error status
                 const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
-                throw new Error(`Failed to get order details for ID: ${orderId}. ${errorMessage}`);
+                throw new Error(`Failed to get order details for external system: ${externalSystem}, order: ${orderNumber}. ${errorMessage}`);
             }
             else if (error.request) {
                 // Request was made but no response received
-                throw new Error(`Failed to connect to order service for order ID: ${orderId}. Please check your connection and try again.`);
+                throw new Error(`Failed to connect to order service for order: ${orderNumber}. Please check your connection and try again.`);
             }
             else {
                 // Something else happened
-                throw new Error(`Failed to get order details for ID: ${orderId}. ${error.message}`);
+                throw new Error(`Failed to get order details for order: ${orderNumber}. ${error.message}`);
+            }
+        }
+    }
+    // Customer Invoice Service Methods
+    async getCustomerInvoices(companyId = 0, customerNo, offset = 0, limit = 10) {
+        try {
+            // Using the invoice cloud endpoint
+            const invoiceServiceUrl = 'https://invoice.cloud.test.egapps.no/api/v2';
+            const response = await axios.get(`${invoiceServiceUrl}/companies/${companyId}/customers/${customerNo}/invoices`, {
+                params: {
+                    offset,
+                    limit
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                    'accept': 'application/json;charset=UTF-8',
+                    'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                },
+                timeout: config.API_TIMEOUT || 30000
+            });
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            };
+        }
+        catch (error) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting customer invoices:', error);
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get invoices for customer: ${customerNo}. ${errorMessage}`);
+            }
+            else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to invoice service for customer: ${customerNo}. Please check your connection and try again.`);
+            }
+            else {
+                // Something else happened
+                throw new Error(`Failed to get customer invoices for: ${customerNo}. ${error.message}`);
+            }
+        }
+    }
+    // Get invoices by customer and project
+    async getCustomerProjectInvoices(companyId = 0, customerNo, projectNo, offset = 0, limit = 10) {
+        try {
+            // Using the invoice cloud endpoint for project-specific invoices
+            const invoiceServiceUrl = 'https://invoice.cloud.test.egapps.no/api';
+            const response = await axios.get(`${invoiceServiceUrl}/companies/${companyId}/customers/${customerNo}/projects/${projectNo}/invoices`, {
+                params: {
+                    offset,
+                    limit
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': `${config.SERVER_NAME}/${config.SERVER_VERSION}`,
+                    'accept': 'application/json;charset=UTF-8',
+                    'eg-apps-token': process.env.INVOICE_SERVICE_TOKEN
+                },
+                timeout: config.API_TIMEOUT || 30000
+            });
+            return {
+                success: true,
+                data: response.data,
+                timestamp: new Date().toISOString()
+            };
+        }
+        catch (error) {
+            // Using stderr for logs to avoid interfering with MCP protocol
+            console.error('Error getting customer project invoices:', error);
+            if (error.response) {
+                // Server responded with error status
+                const errorMessage = error.response.data?.message || `HTTP ${error.response.status}: ${error.response.statusText}`;
+                throw new Error(`Failed to get invoices for customer: ${customerNo}, project: ${projectNo}. ${errorMessage}`);
+            }
+            else if (error.request) {
+                // Request was made but no response received
+                throw new Error(`Failed to connect to invoice service for customer: ${customerNo}, project: ${projectNo}. Please check your connection and try again.`);
+            }
+            else {
+                // Something else happened
+                throw new Error(`Failed to get customer project invoices for: ${customerNo}, project: ${projectNo}. ${error.message}`);
             }
         }
     }
@@ -231,7 +227,7 @@ export class ApiService {
             }, {
                 headers: {
                     "Content-Type": "application/json",
-                    "x-goog-api-key": config.GEMINI_API_KEY
+                    "x-goog-api-key": process.env.GEMINI_API_KEY
                 }
             });
             return response.data.candidates[0].content.parts[0].text;
